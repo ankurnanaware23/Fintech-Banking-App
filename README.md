@@ -1,6 +1,6 @@
-# ⚡ Django + React Boilerplate
+# ⚡ Django + React Project
 
-A modern full-stack boilerplate scaffolded by [Ankur Nanaware].  
+A modern full-stack project created by [Ankur Nanaware].  
 It combines a **Django REST Framework backend** with a **React + Vite + TailwindCSS frontend**, including light/dark mode support, base routing, and ready-to-use authentication.
 
 ---
