@@ -18,6 +18,7 @@ import environ
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Initialize environment variables
 env = environ.Env()
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
@@ -37,6 +38,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # jazzmin (a UI theme for the admin)
     'jazzmin',
     
     'django.contrib.admin',
@@ -134,6 +136,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -142,19 +145,21 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Cors Settings
-CORS_ALLOW_ALL_ORIGINS = False
+# all chnages below are for settings CORS policy for React Frontend
+CORS_ALLOW_ALL_ORIGINS = False # this is set to FALSE so that only specified origins can access the backend
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
+    "http://localhost:5173", # Frontend URL
+    "http://127.0.0.1:5173", # Backend URL
 ]
 
-CORS_ALLOW_CREDENTIALS = True
+# This allows the frontend to include credentials, such as cookies or HTTP authentication headers (like the JWT bearer token), in its requests to the backend. This is essential for authenticated API calls.
+CORS_ALLOW_CREDENTIALS = True 
 
+# This is another security measure to prevent Cross-Site Request Forgery (CSRF) attacks. It tells Django to trust requests that originate from these specific frontend domains, particularly for actions that modify data (like POST, PUT, DELETE requests).
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
+    "http://localhost:5173", # Frontend URL
+    "http://127.0.0.1:5173", # Backend URL
 ]
 
 SESSION_COOKIE_SAMESITE = 'None'
@@ -162,24 +167,30 @@ SESSION_COOKIE_SECURE = True
 
 
 REST_FRAMEWORK = {
+    # This tells DRF that by default, every incoming request should be checked for a JSON Web Token (JWT) in the Authorization header to identify the user making the request.
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+
+    # By default, allow unrestricted access to all API endpoints. Individual views can override this setting to enforce stricter permissions as needed.
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny', 
     ],
+
+    # Pagination settings
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
 }
 
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=14),
-    "ROTATE_REFRESH_TOKENS": True,
-    "BLACKLIST_AFTER_ROTATION": True, # Important for security
-    "UPDATE_LAST_LOGIN": False,
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15), # access tokens will expire after 15 minutes
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=14), # refresh tokens will expire after 14 days
+    "ROTATE_REFRESH_TOKENS": True, # A security feature. When you use a refresh token to get a new access token, the server will also issue a new refresh token.
+    "BLACKLIST_AFTER_ROTATION": True, # Most Important for security | When a refresh token is used and rotated (as above), the old refresh token is added to a "blacklist" so it can never be used again. This prevents a stolen refresh token from being used multiple times.
+    "UPDATE_LAST_LOGIN": False, # Whether to update the user's last login time upon successful token refresh.
 
+    # Cryptographic settings | These settings define how the tokens are signed and verified.
     "ALGORITHM": "HS256",
     "SIGNING_KEY": SECRET_KEY,
     "VERIFYING_KEY": "",
@@ -189,12 +200,13 @@ SIMPLE_JWT = {
     "JWK_URL": None,
     "LEEWAY": 0,
 
+    # Token settings | These settings define the structure and claims of the tokens.
     "AUTH_HEADER_TYPES": ("Bearer",),
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
     'AUTH_COOKIE_SAMESITE': 'None',
     'AUTH_COOKIE_SECURE': True, 
-    "USER_ID_FIELD": "id",
-    "USER_ID_CLAIM": "user_id",
+    "USER_ID_FIELD": "id", # Configures the token's payload. It specifies that the user's primary key (id) will be stored inside the token in a claim named user_id.
+    "USER_ID_CLAIM": "user_id", # Configures the token's payload. It specifies that the user's primary key (id) will be stored inside the token in a claim named user_id.
     "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
 
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
@@ -203,12 +215,14 @@ SIMPLE_JWT = {
 
     "JTI_CLAIM": "jti",
 
+    # These lines point to the specific classes that handle the logic for creating, refreshing, and validating tokens. You are using the default serializers provided by the library.
     "TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainPairSerializer",
     "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
     "TOKEN_VERIFY_SERIALIZER": "rest_framework_simplejwt.serializers.TokenVerifySerializer",
     "TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
 }
 
+# most important settings | It tells Django to use your custom User model
 AUTH_USER_MODEL = "userauths.User"
 
 STRIPE_PUBLIC_KEY = env("STRIPE_PUBLIC_KEY")

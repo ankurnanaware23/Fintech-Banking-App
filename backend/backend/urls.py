@@ -27,6 +27,6 @@ urlpatterns = [
     path(f"{api_base}auth/", include("userauths.urls")),
 ]
 
-
+# important pattern in Django development for handling user-uploaded files.
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
